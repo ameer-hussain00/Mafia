@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة المافيا - Mafia Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: white;
+            min-height: 100vh;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .title {
+            font-size: 3.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a8b2d1;
+            margin-bottom: 30px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: #ff6b6b;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .room-section {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #feca57;
+            font-weight: bold;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #48dbfb;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b6b, #feca57);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #42e695, #3bb78f);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff416c, #ff4757);
+        }
+
+        .role-reveal {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+            border: 3px solid;
+            animation: roleGlow 2s infinite;
+        }
+
+        .role-reveal.mafia {
+            border-color: #ff416c;
+            background: linear-gradient(135deg, rgba(255, 65, 108, 0.3), rgba(255, 71, 87, 0.3));
+        }
+
+        .role-reveal.doctor {
+            border-color: #42e695;
+            background: linear-gradient(135deg, rgba(66, 230, 149, 0.3), rgba(59, 183, 143, 0.3));
+        }
+
+        .role-reveal.detective {
+            border-color: #3742fa;
+            background: linear-gradient(135deg, rgba(55, 66, 250, 0.3), rgba(47, 53, 66, 0.3));
+        }
+
+        .role-reveal.citizen {
+            border-color: #ffa726;
+            background: linear-gradient(135deg, rgba(255, 167, 38, 0.3), rgba(255, 112, 67, 0.3));
+        }
+
+        @keyframes roleGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(255, 255, 255, 0.6); }
+        }
+
+        .role-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        .role-name {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .role-description {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        .players-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .player-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .player-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .player-card.alive {
+            border-color: #42e695;
+        }
+
+        .player-card.dead {
+            border-color: #ff416c;
+            opacity: 0.5;
+            background: rgba(255, 65, 108, 0.2);
+        }
+
+        .player-card.selected {
+            border-color: #feca57;
+            background: rgba(254, 202, 87, 0.3);
+        }
+
+        .game-phase {
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .game-phase.day {
+            background: linear-gradient(135deg, #feca57, #ff9ff3);
+            color: #2f3542;
+        }
+
+        .game-phase.night {
+            background: linear-gradient(135deg, #2f3542, #3742fa);
+            color: white;
+        }
+
+        .game-phase.voting {
+            background: linear-gradient(135deg, #ff9ff3, #ff6b6b);
+            color: white;
+        }
+
+        .action-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .vote-count {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .room-info {
+            background: rgba(72, 219, 251, 0.2);
+            border: 2px solid #48dbfb;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .room-code {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #48dbfb;
+            margin: 10px 0;
+        }
+
+        .result-message {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .alert-success {
+            background: rgba(66, 230, 149, 0.2);
+            border: 2px solid #42e695;
+            color: #42e695;
+        }
+
+        .alert-error {
+            background: rgba(255, 65, 108, 0.2);
+            border: 2px solid #ff416c;
+            color: #ff416c;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+            
+            .players-list {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🕵️ لعبة المافيا 🎭</h1>
+            <p class="subtitle">العب مع أصدقائك - كل شخص من هاتفه!</p>
+        </div>
+
+        <div class="game-container">
+            <!-- Room Setup -->
+            <div id="roomSetup">
+                <div class="section-title">إنشاء أو الانضمام لغرفة</div>
+                
+                <div class="room-section">
+                    <h3 style="color: #48dbfb; margin-bottom: 15px;">إنشاء غرفة جديدة</h3>
+                    <div class="input-group">
+                        <label for="hostName">اسمك:</label>
+                        <input type="text" id="hostName" placeholder="أدخل اسمك">
+                    </div>
+                    <div class="input-group">
+                        <label for="playerCount">عدد اللاعبين (4-12):</label>
+                        <input type="number" id="playerCount" min="4" max="12" value="6">
+                    </div>
+                    <button class="btn btn-primary" onclick="createRoom()">إنشاء غرفة</button>
+                </div>
+
+                <hr style="margin: 30px 0; border: 1px solid rgba(255,255,255,0.2);">
+
+                <div class="room-section">
+                    <h3 style="color: #feca57; margin-bottom: 15px;">الانضمام لغرفة موجودة</h3>
+                    <div class="input-group">
+                        <label for="playerName">اسمك:</label>
+                        <input type="text" id="playerName" placeholder="أدخل اسمك">
+                    </div>
+                    <div class="input-group">
+                        <label for="roomCode">كود الغرفة:</label>
+                        <input type="text" id="roomCode" placeholder="أدخل كود الغرفة">
+                    </div>
+                    <button class="btn btn-success" onclick="joinRoom()">الانضمام للغرفة</button>
+                </div>
+
+                <div id="alertContainer"></div>
+            </div>
+
+            <!-- Waiting Room -->
+            <div id="waitingRoom" class="hidden">
+                <div class="room-info">
+                    <h3>غرفة اللعبة</h3>
+                    <div class="room-code" id="displayRoomCode"></div>
+                    <p>شارك هذا الكود مع أصدقائك للانضمام</p>
+                </div>
+
+                <div class="section-title">اللاعبون في الغرفة (<span id="playerCountDisplay">0</span>/<span id="maxPlayersDisplay">6</span>)</div>
+                <div id="waitingPlayersList" class="players-list"></div>
+
+                <div class="text-center">
+                    <button class="btn btn-primary" id="startGameBtn" onclick="startGame()" disabled>بدء اللعبة</button>
+                    <button class="btn btn-success" onclick="addDemoPlayers()">إضافة لاعبين تجريبيين</button>
+                    <button class="btn btn-danger" onclick="leaveRoom()">مغادرة الغرفة</button>
+                </div>
+            </div>
+
+            <!-- Role Reveal -->
+            <div id="roleReveal" class="hidden">
+                <div class="section-title">دورك في اللعبة</div>
+                <div id="roleDisplay" class="role-reveal">
+                    <!-- Role will be displayed here -->
+                </div>
+                <button class="btn btn-primary" onclick="acknowledgeRole()">فهمت دوري</button>
+            </div>
+
+            <!-- Game Screen -->
+            <div id="gameScreen" class="hidden">
+                <div id="gamePhase" class="game-phase day">
+                    اليوم الأول - وقت النقاش
+                </div>
+
+                <div class="section-title">اللاعبون الأحياء</div>
+                <div id="gamePlayersList" class="players-list"></div>
+
+                <!-- Day Actions -->
+                <div id="dayActions" class="action-panel">
+                    <button class="btn btn-danger" onclick="startVoting()">بدء التصويت</button>
+                </div>
+
+                <!-- Voting Panel -->
+                <div id="votingPanel" class="action-panel hidden">
+                    <h3>🗳️ التصويت</h3>
+                    <p>اختر من تريد إخراجه من اللعبة (اضغط على بطاقة اللاعب):</p>
+                    <div id="votingResults"></div>
+                    <button class="btn btn-danger" onclick="executeVoting()">تنفيذ التصويت</button>
+                </div>
+
+                <!-- Night Actions -->
+                <div id="nightActions" class="action-panel hidden">
+                    <div id="mafiaPanel" class="hidden">
+                        <h3 style="color: #ff416c;">🔫 أنت من المافيا</h3>
+                        <p>اختر من تريد قتله الليلة (اضغط على بطاقة اللاعب):</p>
+                        <div id="mafiaMembers"></div>
+                        <button class="btn btn-danger" onclick="confirmMafiaAction()">تأكيد القتل</button>
+                    </div>
+
+                    <div id="doctorPanel" class="hidden">
+                        <h3 style="color: #42e695;">👨‍⚕️ أنت الطبيب</h3>
+                        <p>اختر من تريد حمايته الليلة (اضغط على بطاقة اللاعب):</p>
+                        <button class="btn btn-success" onclick="confirmDoctorAction()">تأكيد الحماية</button>
+                    </div>
+
+                    <div id="detectivePanel" class="hidden">
+                        <h3 style="color: #3742fa;">🕵️ أنت المحقق</h3>
+                        <p>اختر من تريد التحقق من هويته (اضغط على بطاقة اللاعب):</p>
+                        <div id="investigationResult" class="result-message hidden"></div>
+                        <button class="btn btn-primary" onclick="confirmDetectiveAction()">تأكيد التحقيق</button>
+                    </div>
+
+                    <div id="citizenPanel" class="hidden">
+                        <h3 style="color: #ffa726;">👤 أنت مواطن</h3>
+                        <p>انتظر حتى انتهاء الليل...</p>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button class="btn btn-primary" onclick="nextPhase()">المرحلة التالية</button>
+                    <button class="btn" onclick="resetGame()">إعادة تشغيل</button>
+                </div>
+
+                <div id="gameResult" class="result-message hidden"></div>
+            </div>
+
+            <!-- Game Rules -->
+            <div class="room-section">
+                <div class="section-title">📋 قوانين اللعبة</div>
+                <div style="background: rgba(255,255,255,0.05); border-radius: 15px; padding: 20px;">
+                    <p style="margin-bottom: 10px;"><strong>🌅 النهار:</strong> جميع اللاعبين يناقشون ويصوتون لإخراج مشتبه به</p>
+                    <p style="margin-bottom: 10px;"><strong>🌙 الليل:</strong> المافيا تختار ضحية، الطبيب يحمي، المحقق يحقق</p>
+                    <p style="margin-bottom: 10px;"><strong>🔫 المافيا:</strong> تعرف بعضها وتقتل شخصاً كل ليلة</p>
+                    <p style="margin-bottom: 10px;"><strong>👨‍⚕️ الطبيب:</strong> يحمي شخصاً واحداً كل ليلة (يمكن حماية نفسه)</p>
+                    <p style="margin-bottom: 10px;"><strong>🕵️ المحقق:</strong> يتحقق من هوية شخص واحد كل ليلة</p>
+                    <p><strong>🏆 الفوز:</strong> المواطنون يفوزون بالقضاء على المافيا، المافيا تفوز بمساواة أو تفوق عددها</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gameState = {
+            roomCode: '',
+            playerName: '',
+            isHost: false,
+            players: [],
+            myRole: '',
+            phase: 'day',
+            day: 1,
+            isGameActive: false,
+            selectedTarget: null,
+            votes: {},
+            nightActions: {
+                mafiaTarget: null,
+                doctorTarget: null,
+                detectiveTarget: null
+            },
+            maxPlayers: 6
+        };
+
+        // Simulate room storage (في التطبيق الحقيقي سيكون هناك خادم)
+        let roomStorage = {};
+
+        const roles = {
+            mafia: { 
+                name: 'مافيا', 
+                icon: '🔫', 
+                description: 'أنت جزء من المافيا! تعاون مع زملائك لقتل المواطنين. تعرف من هم أعضاء المافيا الآخرون.' 
+            },
+            doctor: { 
+                name: 'طبيب', 
+                icon: '👨‍⚕️', 
+                description: 'أنت الطبيب! يمكنك حماية شخص واحد كل ليلة من هجمات المافيا. يمكنك حماية نفسك.' 
+            },
+            detective: { 
+                name: 'محقق', 
+                icon: '🕵️', 
+                description: 'أنت المحقق! يمكنك التحقق من هوية شخص واحد كل ليلة لمعرفة إذا كان مافيا أم مواطن بريء.' 
+            },
+            citizen: { 
+                name: 'مواطن', 
+                icon: '👤', 
+                description: 'أنت مواطن بريء! ساعد في كشف المافيا والتصويت ضدهم في النهار.' 
+            }
+        };
+
+        function showAlert(message, type = 'error') {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+            
+            alertContainer.innerHTML = `
+                <div class="alert ${alertClass}">
+                    ${message}
+                </div>
+            `;
+            
+            // Hide alert after 3 seconds
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 3000);
+        }
+
+        function generateRoomCode() {
+            return Math.random().toString(36).substring(2, 8).toUpperCase();
+        }
+
+        function createRoom() {
+            const hostName = document.getElementById('hostName').value.trim();
+            const playerCount = parseInt(document.getElementById('playerCount').value);
+
+            // Validation
+            if (!hostName) {
+                showAlert('يرجى إدخال اسمك');
+                return;
+            }
+
+            if (hostName.length < 2) {
+                showAlert('يجب أن يكون الاسم على الأقل حرفين');
+                return;
+            }
+
+            if (playerCount < 4 || playerCount > 12) {
+                showAlert('عدد اللاعبين يجب أن يكون بين 4 و 12');
+                return;
+            }
+
+            // Generate unique room code
+            let roomCode;
+            do {
+                roomCode = generateRoomCode();
+            } while (roomStorage[roomCode]);
+
+            // Initialize room data
+            gameState.roomCode = roomCode;
+            gameState.playerName = hostName;
+            gameState.isHost = true;
+            gameState.maxPlayers = playerCount;
+            gameState.players = [{
+                name: hostName,
+                id: Date.now(), // Use timestamp as unique ID
+                role: '',
+                alive: true,
+                isHost: true
+            }];
+
+            // Store room in simulated storage
+            roomStorage[roomCode] = {
+                host: hostName,
+                maxPlayers: playerCount,
+                players: [...gameState.players],
+                gameStarted: false
+            };
+
+            showAlert('تم إنشاء الغرفة بنجاح!', 'success');
+            
+            // Show waiting room after short delay
+            setTimeout(() => {
+                showWaitingRoom();
+            }, 1000);
+        }
+
+        function joinRoom() {
+            const playerName = document.getElementById('playerName').value.trim();
+            const roomCode = document.getElementById('roomCode').value.trim().toUpperCase();
+
+            // Validation
+            if (!playerName) {
+                showAlert('يرجى إدخال اسمك');
+                return;
+            }
+
+            if (playerName.length < 2) {
+                showAlert('يجب أن يكون الاسم على الأقل حرفين');
+                return;
+            }
+
+            if (!roomCode) {
+                showAlert('يرجى إدخال كود الغرفة');
+                return;
+            }
+
+            if (roomCode.length !== 6) {
+                showAlert('كود الغرفة يجب أن يكون 6 أحرف');
+                return;  
+            }
+
+            // Check if room exists
+            if (!roomStorage[roomCode]) {
+                showAlert('الغرفة غير موجودة. تأكد من كود الغرفة');
+                return;
+            }
+
+            const room = roomStorage[roomCode];
+
+            // Check if game already started
+            if (room.gameStarted) {
+                showAlert('اللعبة قد بدأت بالفعل في هذه الغرفة');
+                return;
+            }
+
+            // Check if room is full
+            if (room.players.length >= room.maxPlayers) {
+                showAlert('الغرفة ممتلئة');
+                return;
+            }
+
+            // Check if name already exists
+            if (room.players.some(p => p.name === playerName)) {
+                showAlert('هذا الاسم مستخدم بالفعل في الغرفة');
+                return;
+            }
+
+            // Add player to room
+            const newPlayer = {
+                name: playerName,
+                id: Date.now(),
+                role: '',
+                alive: true,
+                isHost: false
+            };
+
+            room.players.push(newPlayer);
+            
+            // Update game state
+            gameState.roomCode = roomCode;
+            gameState.playerName = playerName;
+            gameState.isHost = false;
+            gameState.maxPlayers = room.maxPlayers;
+            gameState.players = [...room.players];
+
+            showAlert('تم الانضمام للغرفة بنجاح!', 'success');
+            
+            // Show waiting room after short delay
+            setTimeout(() => {
+                showWaitingRoom();
+            }, 1000);
+        }
+
+        function showWaitingRoom() {
+            document.getElementById('roomSetup').classList.add('hidden');
+            document.getElementById('waitingRoom').classList.remove('hidden');
+            
+            document.getElementById('displayRoomCode').textContent = gameState.roomCode;
+            document.getElementById('maxPlayersDisplay').textContent = gameState.maxPlayers;
+            updateWaitingRoom();
+        }
+
+        function updateWaitingRoom() {
+            const playersList = document.getElementById('waitingPlayersList');
+            const playerCount = document.getElementById('playerCountDisplay');
+            
+            playerCount.textContent = gameState.players.length;
+            
+            let html = '';
+            gameState.players.forEach(player => {
+                html += `
+                    <div class="player-card alive">
+                        <div style="font-size: 1.5rem;">${player.isHost ? '👑' : '👤'}</div>
+                        <div style="font-weight: bold;">${player.name}</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">${player.isHost ? 'مضيف الغرفة' : 'لاعب'}</div>
+                    </div>
+                `;
+            });
+            
+            playersList.innerHTML = html;
+
+            // Enable start game button if host and enough players
+            const startBtn = document.getElementById('startGameBtn');
+            if (gameState.isHost && gameState.players.length >= 4) {
+                startBtn.disabled = false;
+            } else {
+                startBtn.disabled = true;
+            }
+        }
+
+        function addDemoPlayers() {
+            if (!gameState.isHost) {
+                showAlert('فقط مضيف الغرفة يمكنه إضافة لاعبين');
+                return;
+            }
+
+            const demoNames = ['أحمد', 'فاطمة', 'محمد', 'سارة', 'علي', 'نور', 'يوسف', 'مريم'];
+            let added = 0;
+
+            for (let name of demoNames) {
+                if (gameState.players.length >= gameState.maxPlayers) break;
+                if (gameState.players.some(p => p.name === name)) continue;
+
+                gameState.players.push({
+                    name: name,
+                    id: Date.now() + Math.random(),
+                    role: '',
+                    alive: true,
+                    isHost: false
+                });
+                added++;
+            }
+
+            if (added > 0) {
+                // Update room storage
+                roomStorage[gameState.roomCode].players = [...gameState.players];
+                updateWaitingRoom();
+                showAlert(`تم إضافة ${added} لاعبين تجريبيين`, 'success');
+            } else {
+                showAlert('لا يمكن إضافة المزيد من اللاعبين');
+            }
+        }
+
+        function leaveRoom() {
+            if (gameState.isHost && roomStorage[gameState.roomCode
