@@ -1,0 +1,15 @@
+body {
+  font-family: Tahoma;
+  background: #111;
+  color: #fff;
+  text-align: center;
+  margin-top: 50px;
+}
+
+.hidden { display: none; }
+
+input, button {
+  margin: 5px;
+  padding: 10px;
+  border-radius: 5px;
+}
